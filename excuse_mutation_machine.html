@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8" />
+  <title>🚀 Excuse Mutation Machine + Animated Mascot</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+    body {
+      font-family: 'Comic Neue', cursive, sans-serif;
+      background: linear-gradient(135deg, #fceabb, #f8b500);
+      text-align: center;
+      padding: 40px;
+      transition: background-color 0.5s ease;
+      user-select: none;
+      color: #222;
+    }
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 0.5em;
+      color: #333;
+    }
+    #excuse {
+      margin: 25px auto;
+      font-size: 1.6rem;
+      min-height: 90px;
+      background: rgba(255 255 255 / 0.85);
+      padding: 18px 24px;
+      border-radius: 14px;
+      max-width: 700px;
+      display: inline-block;
+      box-shadow: 0 4px 12px rgb(0 0 0 / 0.15);
+      line-height: 1.4;
+      position: relative;
+      user-select: text;
+    }
+    button, select {
+      padding: 14px 24px;
+      font-size: 1.15rem;
+      margin: 12px 10px 12px 0;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background-color: #ff7675;
+      color: white;
+      box-shadow: 0 4px 10px rgb(255 118 117 / 0.8);
+      transition: background-color 0.3s ease;
+      user-select: none;
+    }
+    button:hover {
+      background-color: #d63031;
+    }
+    select {
+      background-color: #ffeaa7;
+      color: #2d3436;
+      box-shadow: 0 4px 10px rgb(255 234 167 / 0.8);
+    }
+    #reaction-img {
+      height: 140px;
+      margin-top: 18px;
+      user-select: none;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgb(0 0 0 / 0.2);
+    }
+    #mascot {
+      margin: 20px auto 40px;
+      width: 160px;
+      height: 160px;
+      background: #7c9eff;
+      border-radius: 50%;
+      position: relative;
+      box-shadow: 0 8px 16px rgb(124 158 255 / 0.5);
+      overflow: hidden;
+      user-select: none;
+    }
+    /* Alien eyes */
+    .eye {
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 60px;
+      box-shadow: inset 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .eye.left {
+      left: 40px;
+    }
+    .eye.right {
+      right: 40px;
+    }
+    .pupil {
+      width: 14px;
+      height: 14px;
+      background: black;
+      border-radius: 50%;
+      position: absolute;
+      top: 9px;
+      left: 9px;
+      transition: transform 0.2s ease;
+    }
+    /* Mouth */
+    #mouth {
+      position: absolute;
+      bottom: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 20px;
+      background: black;
+      border-radius: 0 0 30px 30px;
+      transition: all 0.3s ease;
+    }
+    /* Mouth states */
+    #mouth.happy {
+      height: 30px;
+      background: #222;
+      border-radius: 0 0 50px 50px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    #mouth.sad {
+      height: 10px;
+      background: #222;
+      border-radius: 50px 50px 0 0;
+      top: 80px;
+      bottom: auto;
+      box-shadow: 0 -4px 8px rgba(0,0,0,0.2);
+    }
+    /* Shaking animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      10%, 30%, 50%, 70%, 90% { transform: translateX(-7px); }
+      20%, 40%, 60%, 80% { transform: translateX(7px); }
+    }
+    .shake {
+      animation: shake 0.6s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🚀 Excuse Mutation Machine + Animated Mascot</h1>
+
+  <label for="category">Choose a category:</label>
+  <select id="category">
+    <option value="random">Random</option>
+    <option value="school">School</option>
+    <option value="tech">Tech</option>
+    <option value="cosmic">Cosmic</option>
+    <option value="pet">Pet</option>
+  </select>
+
+  <div id="excuse">Click the button to generate an excuse!</div>
+
+  <div>
+    <button onclick="generateExcuse()">🔁 Generate Excuse</button>
+    <button onclick="speakExcuse()">🔊 Speak Excuse</button>
+    <button onclick="mutateExcuse()">🧬 Make it Weirder!</button>
+  </div>
+
+  <div id="mascot">
+    <div class="eye left">
+      <div class="pupil" id="pupil-left"></div>
+    </div>
+    <div class="eye right">
+      <div class="pupil" id="pupil-right"></div>
+    </div>
+    <div id="mouth"></div>
+  </div>
+
+  <img id="reaction-img" src="" alt="" />
+
+  <audio id="bg-music" loop autoplay>
+    <source src="https://www.bensound.com/bensound-music/bensound-funkyelement.mp3" type="audio/mpeg">
+    Your browser does not support audio.
+  </audio>
+
+  <!-- Weird sound effects -->
+  <audio id="sound1" src=" https://www.soundjay.com/human/sounds/fart-01.mp3"></audio>
+  <audio id="sound2" src="https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3"></audio>
+  <audio id="sound3" src="https://www.soundjay.com/robot/sounds/robot-beep-1.mp3"></audio>
+  <audio id="sound4" src="https://www.soundjay.com/cartoon/sounds/boing-1.mp3"></audio>
+
+<script>
+  const excuses = {
+    random: [
+    "I accidentally got stuck inside a marshmallow, and it was too comfy to leave.",
+
+"A UFO landed in my backyard, and I had to help them find Wi-Fi.",
+
+"I was caught in a time loop where I kept pressing snooze.",
+
+"The toaster tried to make a run for it, and I had to chase it down.",
+
+"My Wi-Fi signal turned into a riddle, and I had to solve it to reconnect.",
+
+"A giant banana slipped on my street, blocking the way to productivity.",
+
+"I had to teach my shadow how to behave.",
+
+"The fridge threw a tantrum because I didn’t respect its ice cubes.",
+
+"A raccoon broke into my house and demanded snacks.",
+
+"I got a letter from Hogwarts… but it got lost in the mail.",
+
+"I was too busy watching a grasshopper try to open a door.",
+
+"The coffee mug threatened to stop brewing if I didn’t take a break.",
+
+"My mirror said I didn’t look good today, so I needed some time to rethink my life.",
+
+"I went on a virtual reality adventure… and forgot to come back.",
+
+"A squirrel asked me for relationship advice, and I couldn’t say no.",
+
+"I was busy trying to teach my houseplant how to dance.",
+
+"The elevator took me to the wrong dimension, and I had to find my way back.",
+
+"I got distracted trying to figure out if ducks have a secret society.",
+
+"I had to explain to my socks why they always end up mismatched.",
+
+"I was busy negotiating peace between my bed and my blanket.",
+    ],
+
+    school: [
+     "My homework self-destructed to protect the secrets within.",
+
+"The library ghosts hid my notes again.",
+
+"I accidentally submitted a pizza recipe instead of the essay.",
+
+"I was abducted by aliens while trying to finish my math homework.",
+
+"The Wi-Fi in the school network turned into a black hole.",
+,
+"The teacher's pet hijacked my homework to gain extra credit.",
+
+"My dog ate my homework… and my cat chased him to get it back.",
+
+"The classroom lights flickered, and I had to meditate to regain focus.",
+
+"My pencil went on strike and refused to write.",
+
+"The homework was written in invisible ink, so I couldn’t read it.",
+    ],
+
+    tech: [
+     "My laptop tried to install Windows Vista.",
+
+"The Wi-Fi connected to another dimension.",
+
+"I got hacked by a potato.",
+
+"My phone went on a battery-saving mode and froze time.",
+
+"The router had a meltdown and started sending signals to Mars.",
+
+"My computer thought it was on vacation and refused to process anything.",
+
+"The cloud lost all my files during a thunderstorm.",
+
+"My mouse went rogue and started clicking random windows.",
+
+"The Bluetooth connected to a toaster, and now my headphones are in the oven.",
+
+"My laptop started its own podcast without my permission.",
+    ],
+
+    cosmic: [
+     "A black hole borrowed my backpack.",
+
+"Mercury retrograded harder than ever.",
+
+"The moon challenged me to a staring contest.",
+
+"I was busy debating the laws of gravity with a star.",
+
+"Saturn tried to pull me into its rings for a dance-off.",
+
+"The Milky Way called for a family reunion and I had to attend.",
+
+"A comet made me an offer I couldn’t refuse.",
+
+"The stars were too busy winking at me to let me do my work.",
+
+"I was stuck in a time warp while trying to catch a shooting star.",
+
+"An asteroid blocked my internet signal.",
+    ],
+    pet: [
+     "My hamster organized a rebellion.",
+
+"The cat declared herself queen and took my desk.",
+
+"I had to walk my emotional support cactus.",
+
+"My fish threw a tantrum because I didn't feed it on time.",
+
+"The dog hid my homework in a secret lair.",
+
+"My parrot was too busy mocking me to let me concentrate.",
+
+"The bunny insisted on a nap marathon.",
+
+"My turtle challenged me to a race and I couldn't let it down.",
+
+"The iguana refused to leave the keyboard.",
+
+"My cat tried to steal my Wi-Fi password for her own purposes.",
+    ]
+  };
+
+  const reactions = [
+    "https://media.giphy.com/media/3o7TKtdvF5vTjPRZg3/giphy.gif",
+    "https://media.giphy.com/media/xT9IgG50Fb7Mi0prBC/giphy.gif",
+    "https://media.giphy.com/media/1BXa2alBjrCXC/giphy.gif",
+    "https://media.giphy.com/media/xT0xezQGU5xCDJuCPe/giphy.gif"
+  ];
+
+  const mutationWords = [
+    "quantum", "broccoli", "fizz", "glorp", "spaghetti", "dance", "wobble", "splat", "neon", "marshmallow",
+    "rocket", "bubble", "fuzzy", "pickle", "zombie", "alien", "noodle", "twist", "glitch", "nugget"
+  ];
+
+  let usedExcuses = [];
+  let currentExcuse = "";
+
+  function getUnusedExcuse(category) {
+    const pool = category === "random"
+      ? Object.values(excuses).flat()
+      : excuses[category] || excuses.random;
+
+    const unused = pool.filter(e => !usedExcuses.includes(e));
+
+    if (unused.length === 0) {
+      usedExcuses = [];
+      return "Okay, I've run out of ideas. Let's start over!";
+    }
+
+    const selected = unused[Math.floor(Math.random() * unused.length)];
+    usedExcuses.push(selected);
+    currentExcuse = selected;
+    return selected;
+  }
+
+  function generateExcuse() {
+    const category = document.getElementById("category").value;
+    let excuse = getUnusedExcuse(category);
+
+    currentExcuse = excuse;
+
+    updateExcuseText(excuse);
+    playRandomSound();
+    flashBackground();
+    shakeText();
+    showRandomReaction();
+    updateMascotMood("happy");
+  }
+
+  function updateExcuseText(text) {
+    const el = document.getElementById("excuse");
+    el.textContent = `👉 ${text}`;
+  }
+
+  function speakExcuse() {
+    const excuseText = document.getElementById("excuse").textContent;
+    if (!excuseText || excuseText.includes("Click the button")) return;
+
+    const msg = new SpeechSynthesisUtterance(excuseText);
+
+    const voices = speechSynthesis.getVoices();
+    const funnyVoice = voices.find(v => v.name.toLowerCase().includes("fred") || v.name.toLowerCase().includes("trinoids"));
+    if (funnyVoice) msg.voice = funnyVoice;
+
+    msg.pitch = 1.2;
+    msg.rate = 0.95;
+    speechSynthesis.speak(msg);
+  }
+
+  function showRandomReaction() {
+    const img = document.getElementById("reaction-img");
+    img.src = reactions[Math.floor(Math.random() * reactions.length)];
+    img.alt = "Reaction GIF";
+  }
+
+  function playRandomSound() {
+    const sounds = [
+      document.getElementById("sound1"),
+      document.getElementById("sound2"),
+      document.getElementById("sound3"),
+      document.getElementById("sound4")
+    ];
+    const sound = sounds[Math.floor(Math.random() * sounds.length)];
+    sound.currentTime = 0;
+    sound.play();
+  }
+
+  function flashBackground() {
+    const colors = ['#ff6b6b', '#feca57', '#48dbfb', '#1dd1a1', '#5f27cd'];
+    const body = document.body;
+    let i = 0;
+
+    function nextColor() {
+      if (i >= colors.length) {
+        body.style.backgroundColor = '';
+        return;
+      }
+      body.style.backgroundColor = colors[i];
+      i++;
+      setTimeout(nextColor, 150);
+    }
+    nextColor();
+  }
+
+  function shakeText() {
+    const el = document.getElementById("excuse");
+    el.classList.add("shake");
+    setTimeout(() => el.classList.remove("shake"), 600);
+  }
+
+  function mutateExcuse() {
+    if (!currentExcuse || currentExcuse.includes("I've run out")) {
+      updateExcuseText("Click 'Generate Excuse' first!");
+      updateMascotMood("sad");
+      return;
+    }
+
+    let words = currentExcuse.split(" ");
+
+    for (let i = 0; i < 4; i++) {
+      const idx = Math.floor(Math.random() * words.length);
+      if (Math.random() < 0.6) {
+        words[idx] = mutationWords[Math.floor(Math.random() * mutationWords.length)];
+      } else {
+        words.splice(idx, 0, mutationWords[Math.floor(Math.random() * mutationWords.length)]);
+      }
+    }
+
+    currentExcuse = words.join(" ");
+
+    updateExcuseText(currentExcuse);
+    playRandomSound();
+    flashBackground();
+    shakeText();
+
+    // Mascot mood random
+    if (Math.random() < 0.5) {
+      updateMascotMood("happy");
+    } else {
+      updateMascotMood("sad");
+    }
+  }
+
+  // Mascot mood update
+  function updateMascotMood(mood) {
+    const mouth = document.getElementById("mouth");
+    if (mood === "happy") {
+      mouth.classList.add("happy");
+      mouth.classList.remove("sad");
+    } else {
+      mouth.classList.add("sad");
+      mouth.classList.remove("happy");
+    }
+  }
+
+  // Pupils follow mouse
+  document.addEventListener("mousemove", (e) => {
+    const leftPupil = document.getElementById("pupil-left");
+    const rightPupil = document.getElementById("pupil-right");
+    [leftPupil, rightPupil].forEach(eye => {
+      const rect = eye.parentElement.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+
+      let dx = e.clientX - centerX;
+      let dy = e.clientY - centerY;
+
+      const maxDist = 7;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist > maxDist) {
+        dx = dx / dist * maxDist;
+        dy = dy / dist * maxDist;
+      }
+
+      eye.style.transform = `translate(${dx}px, ${dy}px)`;
+    });
+  });
+
+  // Start background music volume low & loop
+  window.onload = () => {
+    const music = document.getElementById("bg-music");
+    music.volume = 0.15;
+  };
+</script>
+
+</body>
+</html>
